@@ -15,17 +15,27 @@ This project implements an **evolutionary search algorithm** to generate images 
 ---
 
 ## Usage
+1. **Clone Latent Space Evolution repository**:
 
-1. **Download the pretrained FFHQ model**:
+   ```bash
+    git clone https://github.com/NVlabs/stylegan2-ada-pytorch.git](https://github.com/federico-bartsch/LatentSpaceEvolution.git
+2. **Clone Style2-ada-pytorch reporsitory**:
+
+   ```bash
+   cd LatentSpaceEvolution
+
+   git clone https://github.com/NVlabs/stylegan2-ada-pytorch.git
+
+3. **Download the pretrained FFHQ model**:
 
    Place the `ffhq.pkl` file in the `models/` directory.  
    You can download it from the [StyleGAN2-ADA pretrained models](https://github.com/NVlabs/stylegan2-ada-pytorch#pre-trained-networks).
 
-2. **Set the target prompt**:
+5. **Set the target prompt**:
 
    Open `latent_space_evolution.py` and set the `TARGET_TEXT` variable to your desired description.  
 
-3. **Run the evolution script**:
+6. **Run the evolution script**:
 
 ```bash
 python latent_space_evolution.py

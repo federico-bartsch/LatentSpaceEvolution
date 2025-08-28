@@ -31,11 +31,20 @@ This project implements an **evolutionary search algorithm** to generate images 
    Place the `ffhq.pkl` file in the `models/` directory.  
    You can download it from the [StyleGAN2-ADA pretrained models](https://github.com/NVlabs/stylegan2-ada-pytorch#pre-trained-networks).
 
-5. **Set the target prompt**:
+4. **Set the target prompt**:
 
    Open `latent_space_evolution.py` and set the `TARGET_TEXT` variable to your desired description.  
 
-6. **Run the evolution script**:
+5. **Run the evolution script**:
 
-```bash
-python latent_space_evolution.py
+   ```bash
+   python latent_space_evolution.py
+
+---
+
+
+## Result
+Result for TARGET_TEXT = "An asian guy wearing a hat and glasses":
+
+![Evolution Video](evolution.gif)
+

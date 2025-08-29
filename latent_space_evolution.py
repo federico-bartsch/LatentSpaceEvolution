@@ -38,7 +38,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load StyleGAN2-ADA FFHQ model
 print("Loading StyleGAN2-ADA FFHQ model...")
-with open(os.path.join(os.path.dirname(__file__), "models", "ffhq.pkl"), 'rb') as f:
+with open('/home/federico.bartsch/bio_model/ffhq.pkl', 'rb') as f:
     G = legacy.load_network_pkl(f)['G_ema'].to(device)
 
 # Load CLIP ViT-L/14
@@ -48,8 +48,8 @@ processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
 # Hyperparameters
 POP_SIZE = 20
-GENERATIONS = 60
-MUT_STD = 1
+GENERATIONS = 100
+mut_std = 0.5
 TARGET_TEXT = "An asian guy wearing a hat and glasses"
 z_dim = G.z_dim
 
@@ -62,7 +62,7 @@ frames = []
 best_scores_per_gen = []
 avg_scores_per_gen = []
 diversity_per_gen = []
-
+mutation_events = {"prob": [], "diversity": []}
 
 # ------------------- Functions -------------------
 def generate_image(z):
@@ -148,10 +148,18 @@ for gen in range(GENERATIONS):
     while len(new_population) < POP_SIZE:
         parent1, parent2 = random.sample(top_k, 2)
         child = 0.5 * (parent1 + parent2)
-        if random.random() < 0.2:
-            child += torch.randn_like(child) * (5 * MUT_STD)
+
+        if diversity_per_gen[-1] < 0.3:
+            if random.random() < 0.5:
+                print("Low diversity detected, applying stronger mutation.")
+                child += torch.randn_like(child) * (2 * mut_std)
+                mutation_events["diversity"].append(gen+1)
+        elif random.random() < 0.2:
+            child += torch.randn_like(child) * (2 * mut_std)
+            mutation_events["prob"].append(gen+1)
+            print("Probability-based mutation applied.")
         else:
-            child += torch.randn_like(child) * MUT_STD
+            child += torch.randn_like(child) * mut_std
         new_population.append(child)
     population = new_population
 
@@ -183,4 +191,26 @@ plt.tight_layout()
 plt.savefig(os.path.join(os.path.dirname(__file__), "plots", "evolution_diversity.png"), dpi=200)
 plt.show()
 
+# plt.figure(figsize=(10,5))
+# plt.plot(diversity_per_gen, label="Population Diversity", color='blue', linestyle='-.', linewidth=2)
+
+# # Overlay mutation events as scatter points
+# plt.scatter(mutation_events["prob"], 
+#             [diversity_per_gen[g] for g in mutation_events["prob"]], 
+#             color="green", marker="o", s=60, label="Prob. mutation")
+
+# plt.scatter(mutation_events["diversity"], 
+#             [diversity_per_gen[g] for g in mutation_events["diversity"]], 
+#             color="red", marker="x", s=80, label="Diversity mutation")
+
+# plt.xlabel("Generation")
+# plt.ylabel("Diversity")
+# plt.title("Diversity over Generations with Mutation Events")
+# plt.legend()
+# plt.grid(True)
+# plt.tight_layout()
+# plt.savefig(os.path.join(os.path.dirname(__file__), "plots", "evolution_diversity_mutations.png"), dpi=200)
+# plt.show()
+
 print("Evolution complete.")
+print(mutation_events)
